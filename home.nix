@@ -41,7 +41,17 @@
 	vscode-fhs
 	gemini-cli
 	antigravity-fhs
+	comma
+	kdePackages.dolphin
+	unzip
+	ollama
+	virt-viewer
 	];
+
+programs.nix-index = {
+  enable = true;
+  enableZshIntegration = true; # ou Zsh
+};
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
