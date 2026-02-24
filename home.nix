@@ -1,93 +1,90 @@
 { config, pkgs, ... }:
 
 {
-  # Home Manager needs a bit of information about you and the paths it should
-  # manage.
+  # ==========================================
+  # CONFIGURATION UTILISATEUR HOME MANAGER
+  # ==========================================
+
   home.username = "pak";
   home.homeDirectory = "/home/pak";
+  
+  # Autoriser les paquets non-libres pour l'utilisateur aussi
   nixpkgs.config.allowUnfree = true;
 
+  # État de la version Home Manager (ne pas changer sauf upgrade)
+  home.stateVersion = "25.11";
+
+  # ==========================================
+  # MODULES IMPORTÉS
+  # ==========================================
   imports = [
-    ./modules/zsh.nix
-    ./modules/nvim.nix
-    ./modules/cyber.nix
-    ./modules/hypr.nix
-    ./modules/kitty.nix
-];
+    ./modules/home/zsh.nix
+    ./modules/home/nvim.nix
+    ./modules/home/cyber.nix
+    ./modules/home/hypr.nix
+    ./modules/home/kitty.nix
+    ./modules/home/tmux.nix
+  ];
 
-
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
-  home.stateVersion = "25.11"; # Please read the comment before changing.
-
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
+  # ==========================================
+  # PAQUETS UTILISATEUR
+  # ==========================================
   home.packages = with pkgs; [
-	discord    
-	deezer-enhanced
-	git	
-	obsidian
-	blueman
-	pavucontrol
-	protonvpn-gui
-	protonmail-desktop
-	wg-netmanager
-	networkmanager-openvpn
-	vscode-fhs
-	gemini-cli
-	antigravity-fhs
-	comma
-	kdePackages.dolphin
-	unzip
-	ollama
-	virt-viewer
-	];
+    # --- COMMUNICATION & SOCIAL ---
+    discord    
+    protonmail-desktop
+    
+    # --- MUSIQUE & MEDIA ---
+    deezer-enhanced
+    pavucontrol # Contrôle du volume
+    
+    # --- PRODUCTIVITÉ & NOTES ---
+    obsidian
+    
+    # --- DEVELOPPEMENT & OUTILS ---
+    git	
+    vscode-fhs
+    gemini-cli
+    kdePackages.dolphin # Gestionnaire de fichiers
+    unzip
+    pipx
+    comma # "run without install" (ex: , python)
+    
+    # --- AI & DATA ---
+    ollama
 
-programs.nix-index = {
-  enable = true;
-  enableZshIntegration = true; # ou Zsh
-};
+    # --- RESEAU & VPN ---
+    blueman # Gestion Bluetooth GUI
+    protonvpn-gui
+    wg-netmanager
+    networkmanager-openvpn
+    
+    # --- SYSTEME & VIRTUALISATION ---
+    virt-viewer
+    antigravity-fhs 
+  ];
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
+  # ==========================================
+  # PROGRAMMES & SERVICES
+  # ==========================================
+
+  # Utilitaire pour trouver dans quel paquet se trouve une commande (nix-locate)
+  programs.nix-index = {
+    enable = true;
+    enableZshIntegration = true; 
+  };
+
+  # Gestionnaire de fichiers de configuration
   home.file = {
-    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-    # # symlink to the Nix store copy.
+    # Exemples :
     # ".screenrc".source = dotfiles/screenrc;
-
-    # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
   };
 
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. These will be explicitly sourced when using a
-  # shell provided by Home Manager. If you don't want to manage your shell
-  # through Home Manager then you have to manually source 'hm-session-vars.sh'
-  # located at either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/pak/etc/profile.d/hm-session-vars.sh
-  #
+  # Variables d'environnement de session
   home.sessionVariables = {
-    # EDITOR = "emacs";
+    # EDITOR = "nvim";
   };
 
-  # Let Home Manager install and manage itself.
+  # Activation de Home Manager
   programs.home-manager.enable = true;
 }
