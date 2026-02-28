@@ -7,9 +7,6 @@
 
   home.username = "pak";
   home.homeDirectory = "/home/pak";
-  
-  # Autoriser les paquets non-libres pour l'utilisateur aussi
-  nixpkgs.config.allowUnfree = true;
 
   # État de la version Home Manager (ne pas changer sauf upgrade)
   home.stateVersion = "25.11";
@@ -45,10 +42,13 @@
     git	
     vscode-fhs
     gemini-cli
-    kdePackages.dolphin # Gestionnaire de fichiers
+    nemo                  # Le gestionnaire de fichiers en lui-même
+    nemo-fileroller       # Le plugin Nemo pour faire le pont avec les archives
+    file-roller           # Le logiciel d'archives (GUI) appelé par le plugin
     unzip
     pipx
     comma # "run without install" (ex: , python)
+    psmisc
     
     # --- AI & DATA ---
     ollama

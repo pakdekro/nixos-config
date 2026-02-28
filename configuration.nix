@@ -88,6 +88,14 @@
   # Hyprland (Session Wayland)
   programs.hyprland.enable = true;
 
+  # Utilisation de Ozone pour les problèmes de scaling
+  environment.sessionVariables = {
+    # Force les applications Electron (Discord, VSCode, etc.) à utiliser Wayland nativement
+    NIXOS_OZONE_WL = "1";
+  };
+
+  # on active dconf pour les appli GTK
+  programs.dconf.enable = true;
 
   # ==========================================
   # SON & IMPRIMANTES

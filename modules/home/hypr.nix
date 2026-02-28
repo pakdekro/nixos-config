@@ -31,6 +31,18 @@
     hyprlock
   ];
 
+  # --- CONFIGURATION GTK (Thématisation des apps comme Nemo) ---
+  gtk = {
+    enable = true;
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    # Stylix gère déjà les couleurs (Catppuccin) et la police (FiraCode).
+    # Ce bloc sert uniquement à injecter un pack d'icônes moderne 
+    # pour remplacer les vieux dossiers marrons par défaut de GNOME/GTK.
+  };
+
   # --- CONFIGURATION HYPRLAND ---
   wayland.windowManager.hyprland = {
     enable = true;
@@ -106,15 +118,15 @@
 
       bind = [
         "$mod, Q, exec, kitty"
-        "$mod, E, exec, dolphin"
+        "$mod, E, exec, nemo"
         
         # Lancement Rofi (Apps)
         "$mod, R, exec, rofi -show drun"
         
-        # NOUVEAU: Rofi Power Menu
+        # Rofi Power Menu
         "$mod, P, exec, rofi -show power-menu -modi power-menu:rofi-power-menu"
         
-        # MAJ: Rofi Network / VPN Menu avec le nouveau paquet
+        # Rofi Network / VPN Menu avec le nouveau paquet
         "$mod, N, exec, rofi-network-manager"
 
         "$mod, C, killactive,"
