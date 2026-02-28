@@ -1,13 +1,20 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   # --- Paquets nécessaires pour l'environnement ---
   home.packages = with pkgs; [
     # Outils Système
     waybar
-    rofi
+    
+    # Rofi principal (qui intègre désormais le support natif Wayland)
+    rofi 
+    
+    # Plugins Rofi demandés
+    rofi-power-menu      # Menu d'extinction/reboot
+    rofi-network-manager # Script natif Rofi pour gérer Wi-Fi ET VPN via NetworkManager
+
     swaynotificationcenter # Centre de notifs (mieux que Dunst)
-    networkmanagerapplet   # Icône Wi-Fi
+    networkmanagerapplet   # Icône Wi-Fi (Tray)
     
     # Gestion Audio/Luminosité
     pamixer
@@ -38,8 +45,6 @@
       ];
 
       # --- ECRANS ---
-      # Laptop (eDP-1): 2880px / 1.2 = 2400px de large logiques.
-      # TV (DP-2): Placée à 2400x0.
       monitor = [
         "eDP-1, 2880x1920@120, 0x0, 1.2"
         "DP-2, 3840x2160@60, 2400x0, 1"
@@ -58,23 +63,20 @@
         gaps_in = 5;
         gaps_out = 10;
         border_size = 2;
-        # Stylix gère les couleurs des bordures (active/inactive)
         layout = "dwindle";
       };
 
       decoration = {
         rounding = 10;
         
-        # Le Flou (Blur) est essentiel pour la transparence de Kitty
         blur = {
             enabled = true;
             size = 5;
-            passes = 3; # 3 passes = flou très qualitatif
+            passes = 3;
             new_optimizations = true;
             ignore_opacity = true;
         };
         
-        # Ombres
         shadow = {
             enabled = true;
             range = 4;
@@ -100,13 +102,21 @@
       };
 
       # --- RACCOURCIS (KEYBINDINGS) ---
-
-"$mod" = "SUPER";
+      "$mod" = "SUPER";
 
       bind = [
         "$mod, Q, exec, kitty"
         "$mod, E, exec, dolphin"
+        
+        # Lancement Rofi (Apps)
         "$mod, R, exec, rofi -show drun"
+        
+        # NOUVEAU: Rofi Power Menu
+        "$mod, P, exec, rofi -show power-menu -modi power-menu:rofi-power-menu"
+        
+        # MAJ: Rofi Network / VPN Menu avec le nouveau paquet
+        "$mod, N, exec, rofi-network-manager"
+
         "$mod, C, killactive,"
         "$mod, V, togglefloating,"
         "$mod, F, fullscreen,"
@@ -124,51 +134,43 @@
         "$mod SHIFT, k, movewindow, u"
         "$mod SHIFT, j, movewindow, d"
 
-        # --- CORRECTION WORKSPACES ---
-        # Méthode simple et explicite pour 1-9
-        # Touche 1 (&)
+        # --- WORKSPACES ---
         "$mod, ampersand, workspace, 1"
         "$mod SHIFT, ampersand, movetoworkspace, 1"
-
-        # Touche 2 (é)
         "$mod, eacute, workspace, 2"
         "$mod SHIFT, eacute, movetoworkspace, 2"
-
-        # Touche 3 (")
         "$mod, quotedbl, workspace, 3"
         "$mod SHIFT, quotedbl, movetoworkspace, 3"
-
-        # Touche 4 (')
         "$mod, apostrophe, workspace, 4"
         "$mod SHIFT, apostrophe, movetoworkspace, 4"
-
-        # Touche 5 (()
         "$mod, parenleft, workspace, 5"
         "$mod SHIFT, parenleft, movetoworkspace, 5"
-
-        # Touche 6 (-)
         "$mod, minus, workspace, 6"
         "$mod SHIFT, minus, movetoworkspace, 6"
-
-        # Touche 7 (è)
         "$mod, egrave, workspace, 7"
         "$mod SHIFT, egrave, movetoworkspace, 7"
-
-        # Touche 8 (_)
         "$mod, underscore, workspace, 8"
         "$mod SHIFT, underscore, movetoworkspace, 8"
-
-        # Touche 9 (ç)
         "$mod, ccedilla, workspace, 9"
         "$mod SHIFT, ccedilla, movetoworkspace, 9"
-
-        # Touche 0 (à)
         "$mod, agrave, workspace, 10"
         "$mod SHIFT, agrave, movetoworkspace, 10"
 
-        # Scroll souris sur les workspaces (très pratique)
+        # Scroll souris sur les workspaces
         "$mod, mouse_down, workspace, e+1"
         "$mod, mouse_up, workspace, e-1"
+      ];
+
+      # Binds avec 'e' (repeat) pour maintenir la touche enfoncée
+      binde = [
+        # Audio
+        ", XF86AudioRaiseVolume, exec, pamixer -i 5"
+        ", XF86AudioLowerVolume, exec, pamixer -d 5"
+        ", XF86AudioMute, exec, pamixer -t"
+        
+        # Luminosité (Brightness)
+        ", XF86MonBrightnessUp, exec, brightnessctl set 5%+"
+        ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
       ];
 
       bindm = [
@@ -185,15 +187,11 @@
       * {
         border: none;
         border-radius: 0;
-        font-family: "JetBrainsMono Nerd Font";
         font-weight: bold;
         font-size: 14px;
         min-height: 0;
       }
-      window#waybar {
-        background: transparent;
-        color: #cdd6f4;
-      }
+      window#waybar { background: transparent; color: #cdd6f4; }
       .modules-left, .modules-center, .modules-right {
         background: #1e1e2e;
         border-radius: 20px;
@@ -213,12 +211,10 @@
 
     settings = {
       mainBar = {
-        layer = "top";
-        position = "top";
-        height = 36;
+        layer = "top"; position = "top"; height = 36;
         modules-left = [ "hyprland/workspaces" ];
         modules-center = [ "clock" ];
-        modules-right = [ "network" "bluetooth" "cpu" "memory" "pulseaudio" "power-profiles-daemon""battery" "tray" ];
+        modules-right = [ "network" "bluetooth" "cpu" "memory" "pulseaudio" "power-profiles-daemon" "battery" "tray" ];
         
         "hyprland/workspaces" = {
           format = "{icon}";
@@ -232,56 +228,137 @@
         "bluetooth" = {
           format = " {status}";
           format-connected = " {device_alias}";
-          format-connected-battery = " {device_alias} {device_battery_percentage}%";
-          tooltip-format = "{controller_alias}\t{controller_address}\n\n{num_connections} connected";
-          tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}";
-          tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
-          tooltip-format-enumerate-connected-battery = "{device_alias}\t{device_address}\t{device_battery_percentage}%";
-          # Lance le gestionnaire Bluetooth au clic
           on-click = "blueman-manager";
         };
-	"network" = {
+        "network" = {
           format-wifi = "  {essid}";
           format-ethernet = "  {ipaddr}";
           format-disconnected = "  Disconnected";
-          tooltip-format = "{ifname} via {gwaddr}";
-          # Lance l'éditeur de connexion au clic
-          on-click = "nm-connection-editor";
+          on-click = "rofi-network-manager"; # Mise à jour de la commande au clic
         };
         "pulseaudio" = {
           format = "{icon} {volume}%";
           format-icons = { default = ["" "" ""]; };
-          on-click = "pavucontrol"; # Lance le mixeur audio
+          on-click = "pavucontrol";
         };
         "cpu" = { format = " {usage}%"; };
-	"power-profiles-daemon" = {
+        "power-profiles-daemon" = {
           format = "{icon}";
-          tooltip-format = "Power profile: {profile}\nDriver: {driver}";
-          tooltip = true;
-          format-icons = {
-            default = "";
-            performance = "";
-            balanced = "";
-            power-saver = "";
-          };
+          format-icons = { default = ""; performance = ""; balanced = ""; power-saver = ""; };
         };
         "memory" = { format = " {}%"; };
       };
     };
   };
 
-  # --- CONFIGURATION ROFI (Spotlight Style) ---
+  # --- CONFIGURATION ROFI ---
   programs.rofi = {
     enable = true;
-    package = pkgs.rofi;
+    package = pkgs.rofi; # Utilise désormais le paquet standard mergé
+    
+    # On force Rofi à utiliser notre fichier de thème généré ci-dessous
+    # lib.mkForce est indispensable ici pour écraser la configuration dynamique de Stylix
+    theme = lib.mkForce "~/.config/rofi/theme.rasi";
+    
     extraConfig = {
-      modi = "drun,run";
+      modi = "drun,run,power-menu:rofi-power-menu";
       show-icons = true;
+      icon-theme = "Papirus"; # Assure-toi d'avoir un icon theme installé
       drun-display-format = "{icon} {name}";
       disable-history = false;
       display-drun = "   Apps ";
       display-run = "   Run ";
-      sidebar-mode = true;
+      sidebar-mode = false;
     };
   };
+
+  # --- INJECTION DES FICHIERS DE CONFIGURATION DECLARATIFS ---
+  
+  # Le Thème Rofi "Spotlight" (S'applique automatiquement à rofi, rofi-network-manager et rofi-power-menu)
+  xdg.configFile."rofi/theme.rasi".text = ''
+    * {
+        bg-col:  #1e1e2e; /* Fond sombre */
+        bg-alt:  #282839; /* Fond barre de recherche */
+        fg-col:  #cdd6f4; /* Texte blanc clair */
+        blue:    #74c7ec; /* Bleu de la capture pour la sélection */
+        fg-col2: #1e1e2e; /* Texte noir sur élément sélectionné */
+        border-col: #313244;
+        
+        background-color: transparent;
+        text-color: @fg-col;
+        margin: 0px;
+        padding: 0px;
+        spacing: 0px;
+    }
+
+    window {
+        background-color: @bg-col;
+        border: 2px solid;
+        border-color: @border-col;
+        border-radius: 12px;
+        width: 600px;
+        padding: 15px;
+        location: center;
+    }
+
+    mainbox {
+        background-color: transparent;
+        children: [ inputbar, listview ];
+    }
+
+    inputbar {
+        children: [ prompt, entry ];
+        background-color: @bg-alt;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 0px 0px 15px 0px;
+    }
+
+    prompt {
+        text-color: @fg-col;
+        margin: 0px 10px 0px 5px;
+    }
+
+    entry {
+        placeholder: "Search...";
+        placeholder-color: #a6adc8;
+        text-color: @fg-col;
+        background-color: transparent;
+    }
+
+    listview {
+        background-color: transparent;
+        columns: 1;
+        lines: 8;
+        scrollbar: false;
+        spacing: 5px;
+    }
+
+    element {
+        padding: 10px;
+        border-radius: 8px;
+        background-color: transparent;
+    }
+
+    element normal.normal, element alternate.normal {
+        background-color: transparent;
+    }
+
+    element selected.normal {
+        background-color: @blue;
+        text-color: @fg-col2;
+    }
+
+    element-text {
+        vertical-align: 0.5;
+        background-color: inherit;
+        text-color: inherit;
+    }
+
+    element-icon {
+        size: 24px;
+        margin: 0px 15px 0px 0px;
+        background-color: inherit;
+    }
+  '';
 }
