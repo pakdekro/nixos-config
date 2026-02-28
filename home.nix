@@ -28,8 +28,8 @@
   # ==========================================
   home.packages = with pkgs; [
     # --- COMMUNICATION & SOCIAL ---
-    discord    
-    protonmail-desktop
+    discord
+    publii
     
     # --- MUSIQUE & MEDIA ---
     deezer-enhanced
@@ -37,7 +37,8 @@
     
     # --- PRODUCTIVITÉ & NOTES ---
     obsidian
-    
+    onlyoffice-desktopeditors
+
     # --- DEVELOPPEMENT & OUTILS ---
     git	
     vscode-fhs
@@ -49,9 +50,6 @@
     pipx
     comma # "run without install" (ex: , python)
     psmisc
-    
-    # --- AI & DATA ---
-    ollama
 
     # --- RESEAU & VPN ---
     blueman # Gestion Bluetooth GUI

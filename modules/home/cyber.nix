@@ -81,6 +81,7 @@ in
     seclists
     maigret
     exploitdb
+
   ];
 
 home.file = {
