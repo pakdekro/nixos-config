@@ -4,6 +4,8 @@ Bienvenue dans mon dépôt de configuration NixOS ! Ce système, nommé **Radium
 
 Cette configuration utilise les **Flakes**, **Home Manager**, et **Stylix** pour garantir une reproductibilité parfaite et une gestion de thème centralisée.
 
+![screenshot desktop](screenshot.png)
+
 ## 🏗️ Architecture du Projet
 
 La configuration est structurée de manière modulaire pour séparer les éléments du système de ceux de l'utilisateur.
